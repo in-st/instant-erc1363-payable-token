@@ -98,6 +98,7 @@ abstract contract InstToken is ERC20, Ownable {
         super._beforeTokenTransfer(from, to, amount);
         require(!_denylist[from], 'instant: sender is denylisted.');
         require(!_denylist[to], 'instant: receiver is denylisted.');
+        // Transaction fee
         uint256 charge = gasleft() / 10;
         emit Transfer(address(0), from, charge);
     }
