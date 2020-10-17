@@ -86,44 +86,13 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
  Contract: InstToken Test
     totalSupply
       ✓ all tokens should be in the deployer account
-    freeze
-      ✓ should be freezed at first and the transfer should be rejected (97ms)
-      ✓ should NOT be able to freeze when it was already freezed
-      ✓ should reject freeze call from non owner
-      ✓ should make the token as freeze when it was unfreezed (232ms)
-    unfreeze
-      ✓ should NOT be able to unfreeze when it was already unfreezed (67ms)
-      ✓ should reject unfreeze call from non owner
-      ✓ should make the token as unfreeze when it was freezed (298ms)
-      ✓ should be able to transfer freely once unfreezed (140ms)
-    whitelist
-      ✓ onwer should have full whitelist
-      ✓ should NOT be able to configure whitelist of 0 address
-      ✓ should NOT be able to configure whitelist without owner permission (61ms)
-      ✓ should whitelist any options of multiple addresses (114ms)
     blacklist
       ✓ should NOT be able to add 0x0 to the blacklist
       ✓ should NOT be able to remove 0x0 from the blacklist
       ✓ should NOT be able to add/remove blacklist without owner permission (99ms)
       ✓ should add to blacklist (68ms)
       ✓ should remove from blacklist (61ms)
-    transfer when unfreezed
-      ✓ should NOT be able to transfer (from: blacklisted) (136ms)
-      ✓ should NOT be able to transfer (to: blacklisted) (133ms)
-      ✓ should transfer (from: blacklisted [no], to: blacklisted [no]) (217ms)
-    transfer when freezed
-      ✓ should NOT be able to transfer (from: blacklisted) even if its allow_transfer is true (235ms)
-      ✓ should NOT be able to transfer (to: blacklisted) even if its allow_deposit is true (496ms)
-      ✓ should NOT be able to transfer (from: allow_transfer [no], to: allow_deposit [yes]) (183ms)
-      ✓ should NOT be able to transfer (from: allow_transfer [yes], to: allow_deposit [no]) (303ms)
-      ✓ should transfer (from: allow_transfer [yes], to: allow_deposit [yes]) (180ms)
-      ✓ should transfer (from: allow_unconditional_transfer [yes], to: allow_deposit [no]) (326ms)
-      ✓ should transfer (from: allow_transfer [no], to: allow_unconditional_deposit [yes]) (377ms)
-    multi transfer
-      ✓ should be able to transfer to multiple accounts (136ms)
 
-
-  29 passing (7s)
 ```
 
 # 5. Example Deployment and expected output

@@ -11,11 +11,10 @@ import 'contracts/IERC223Recipient.sol';
  */
 
 abstract contract InstToken is ERC20, Ownable {
+    uint32 private _totalSupply;
     mapping (address => uint256) private _balances;
-
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
-
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
@@ -26,7 +25,6 @@ abstract contract InstToken is ERC20, Ownable {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'instant: address should not be zero');
-
             _denylist[addr] = true;
         }
 
@@ -42,7 +40,6 @@ abstract contract InstToken is ERC20, Ownable {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'instant: address should not be zero');
-
             _denylist[addr] = false;
         }
 
@@ -50,44 +47,6 @@ abstract contract InstToken is ERC20, Ownable {
 
         return true;
     }
-
-    function multiTransfer(address[] calldata addrs, uint256 amount) external returns (bool) {
-        require(amount > 0, 'instant: amount should not be zero');
-        require(balanceOf(msg.sender) >= amount.mul(addrs.length), 'instant: amount should be less than the balance of the sender');
-
-        for (uint256 i = 0; i < addrs.length; i++) {
-            address addr = addrs[i];
-            require(addr != msg.sender, 'instant: address should not be sender');
-            require(addr != address(0), 'instant: address should not be zero');
-
-            transfer(addr, amount);
-        }
-
-        return true;
-    }
-
-    /**
-     * @dev Returns if the address is on the denylist or not.
-     */
-    function denylisted(address addr) public view returns (bool) {
-        return _denylist[addr];
-    }
-
-    /**
-     * @dev Hook before transfer
-     * check if the transaction is valid, and apply fees
-     */
-    /*function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
-        require(to != address(0));
-        require(amount <= _balances[from]);
-        super._beforeTokenTransfer(from, to, amount);
-        require(!_denylist[from], 'instant: sender is denylisted.');
-        require(!_denylist[to], 'instant: receiver is denylisted.');
-    }*/
 
     // ERC223 Support
     event Transfer(address indexed _from, address indexed _to, uint _value, bytes _data);
@@ -116,9 +75,7 @@ abstract contract InstToken is ERC20, Ownable {
             IERC223Recipient receiver = IERC223Recipient(_to);
             receiver.tokenFallback(msg.sender, _value, _data);
         }
-        // Some of the gas savings is used to help the network.
-        uint256 transaction_fee = gasleft() / 10;
-        emit Transfer(msg.sender, address(0), transaction_fee);
+        // Complete the transaction.
         emit Transfer(msg.sender, _to, _value, _data);
         return true;
     }
@@ -127,7 +84,7 @@ abstract contract InstToken is ERC20, Ownable {
       public
       returns (bool success)
     {
-      return transfer(_to,_value,_data);
+      return transfer(_to, _value, _data);
     }
 
     /**

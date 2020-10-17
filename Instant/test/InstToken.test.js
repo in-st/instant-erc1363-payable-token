@@ -15,11 +15,12 @@ contract('InstToken Test', async function (accounts) {
   const [deployerAccount, account1, account2] = accounts
 
   let instance
-
+/*
   before(async function () {
     instance = await Token.deployed()
   })
-
+  */
+/*
   async function makeFreeze() {
     const freezed = await instance.freezed()
     if (!freezed) {
@@ -38,7 +39,7 @@ contract('InstToken Test', async function (accounts) {
     await instance.whitelist([account1, account2], true, true, true, true)
     await instance.removeFromdenylist([account1, account2])
   }
-
+*/
   describe('totalSupply', function () {
     /*
       - [x] all tokens should be in the deployer account
@@ -90,12 +91,12 @@ contract('InstToken Test', async function (accounts) {
       - [x] should NOT be able to transfer (to: denylisted)
       - [x] should transfer (from: denylisted [no], to: denylisted [no])
     */
-
+/*
     before(async function () {
       await makeUnfreeze()
       await clearWhitelistdenylist()
     })
-
+*/
     it('should NOT be able to transfer (from: denylisted)', async function () {
       // send some funds to account1
       await expect(instance.transfer(account1, 1000)).to.eventually.be.fulfilled
