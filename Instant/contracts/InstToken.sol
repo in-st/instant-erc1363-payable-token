@@ -213,6 +213,8 @@ contract InstToken is ERC20, Ownable {
         address to,
         uint256 amount
     ) internal virtual override {
+        require(to != address(0));
+        require(amount <= _balances[from]);
         super._beforeTokenTransfer(from, to, amount);
         require(!_denylist[from], 'in.st: sender is denylisted.');
         require(!_denylist[to], 'in.st: receiver is denylisted.');
