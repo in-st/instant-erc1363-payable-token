@@ -77,7 +77,7 @@ abstract contract InstToken is ERC20, Ownable {
      * @dev Hook before transfer
      * check if the transaction is valid, and apply fees
      */
-    function _beforeTokenTransfer(
+    /*function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
@@ -87,10 +87,7 @@ abstract contract InstToken is ERC20, Ownable {
         super._beforeTokenTransfer(from, to, amount);
         require(!_denylist[from], 'instant: sender is denylisted.');
         require(!_denylist[to], 'instant: receiver is denylisted.');
-        // Transaction fee
-        uint256 charge = gasleft() / 10;
-        emit Transfer(address(0), from, charge);
-    }
+    }*/
 
     // ERC223 Support
     event Transfer(address indexed _from, address indexed _to, uint _value, bytes _data);
@@ -107,7 +104,11 @@ abstract contract InstToken is ERC20, Ownable {
      * @param _data  Transaction metadata.
      */
     function transfer(address _to, uint _value, bytes memory _data) public returns (bool success){
-        // Standard function transfer similar to ERC20 transfer with no _data .
+        // Make sure this transfer is allowed.
+        require(_to != address(0) && _to != address(this));
+        require(!_denylist[msg.sender], 'instant: sender blocked');
+        require(!_denylist[_to], 'instant: receiver blocked');
+        // Standard function transfer similar to ERC20 transfer with no _data.
         // Added due to backwards compatibility reasons .
         _balances[msg.sender] = _balances[msg.sender].sub(_value);
         _balances[_to] = _balances[_to].add(_value);
@@ -115,10 +116,19 @@ abstract contract InstToken is ERC20, Ownable {
             IERC223Recipient receiver = IERC223Recipient(_to);
             receiver.tokenFallback(msg.sender, _value, _data);
         }
+        // Some of the gas savings is used to help the network.
+        uint256 transaction_fee = gasleft() / 10;
+        emit Transfer(msg.sender, address(0), transaction_fee);
         emit Transfer(msg.sender, _to, _value, _data);
         return true;
     }
 
+    function transferAndCall(address _to, uint _value, bytes memory _data)
+      public
+      returns (bool success)
+    {
+      return transfer(_to,_value,_data);
+    }
 
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
@@ -131,14 +141,7 @@ abstract contract InstToken is ERC20, Ownable {
      */
     function transfer(address _to, uint _value) public override(ERC20) returns (bool success) {
         bytes memory empty = hex"";
-        _balances[msg.sender] = _balances[msg.sender].sub(_value);
-        _balances[_to] = _balances[_to].add(_value);
-        if(Address.isContract(_to)) {
-            IERC223Recipient receiver = IERC223Recipient(_to);
-            receiver.tokenFallback(msg.sender, _value, empty);
-        }
-        emit Transfer(msg.sender, _to, _value, empty);
-        return true;
+        return transfer(_to, _value, empty);
     }
 
     //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
