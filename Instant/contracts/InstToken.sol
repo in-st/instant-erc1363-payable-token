@@ -3,18 +3,7 @@ pragma solidity 0.6.2;
 import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 import 'openzeppelin-solidity/contracts/access/Ownable.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
-
-
-abstract contract IERC223Recipient {
-/**
- * @dev Standard ERC223 function that will handle incoming token transfers.
- *
- * @param _from  Token sender address.
- * @param _value Amount of tokens.
- * @param _data  Transaction metadata.
- */
-    function tokenFallback(address _from, uint _value, bytes memory _data) virtual public;
-}
+import 'contracts/IERC223Recipient.sol';
 
 /**
  * @title InstToken

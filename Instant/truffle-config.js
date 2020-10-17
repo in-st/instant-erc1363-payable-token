@@ -38,8 +38,12 @@ if (process.env.PRIVATE_NETWORK_ID) {
 if (process.env.ETHERSCAN_APIKEY) {
   console.log('Using env var process.env.ETHERSCAN_APIKEY', abbrv(process.env.ETHERSCAN_APIKEY))
 }
+if (process.env.COIN_TYPE) {
+  console.log('Using env var process.env.COIN_TYPE', abbrv(process.env.COIN_TYPE))
+}
 
 module.exports = {
+  contracts_directory: "./contracts/"+process.env.COIN_TYPE,
   plugins: ['truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_APIKEY,
@@ -61,9 +65,10 @@ module.exports = {
     // options below to some value.
     development: {
       host: 'localhost',
-      port: 7545,
+      port: 8545,
       gas: 6700000,
-      network_id: '5777',
+      from: process.env.PUBLIC_KEY,
+      network_id: '3',
     },
 
     // Useful for private networks
