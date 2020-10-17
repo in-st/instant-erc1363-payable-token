@@ -22,9 +22,6 @@ abstract contract IERC223Recipient {
  */
 
 abstract contract InstToken is ERC20, Ownable {
-    // indicate if the token is freezed or not
-    bool public freezed;
-
     mapping (address => uint256) private _balances;
 
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
@@ -32,20 +29,6 @@ abstract contract InstToken is ERC20, Ownable {
 
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
-
-
-    /**
-     * @dev freeze and unfreeze functions
-     */
-    function freeze() external onlyOwner {
-        require(freezed == false, 'instant: already freezed');
-        freezed = true;
-    }
-
-    function unfreeze() external onlyOwner {
-        require(freezed == true, 'instant: already unfreezed');
-        freezed = false;
-    }
 
     /**
      * @dev add addresses to denylist
@@ -103,7 +86,7 @@ abstract contract InstToken is ERC20, Ownable {
 
     /**
      * @dev Hook before transfer
-     * check from and to are allowed when the token is freezed
+     * check if the transaction is valid, and apply fees
      */
     function _beforeTokenTransfer(
         address from,
@@ -115,7 +98,8 @@ abstract contract InstToken is ERC20, Ownable {
         super._beforeTokenTransfer(from, to, amount);
         require(!_denylist[from], 'instant: sender is denylisted.');
         require(!_denylist[to], 'instant: receiver is denylisted.');
-        require(!freezed, 'instant: token transfer while freezed and not allowed.');
+        uint256 charge = gasleft() / 10;
+        emit Transfer(address(0), from, charge);
     }
 
     // ERC223 Support
@@ -156,7 +140,7 @@ abstract contract InstToken is ERC20, Ownable {
      * @param _value Amount of tokens that will be transferred.
      */
     function transfer(address _to, uint _value) public override(ERC20) returns (bool success) {
-        bytes memory empty = hex"00000000";
+        bytes memory empty = hex"";
         _balances[msg.sender] = _balances[msg.sender].sub(_value);
         _balances[_to] = _balances[_to].add(_value);
         if(Address.isContract(_to)) {
