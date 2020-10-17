@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>Kira Liquidity Program</h1>
-  <h2>Improvement Proposals & Documentation</h2>
+  <h1>Instant Liquidity</h1>
+  <h2>An ERC223 token system.</h2>
   <br/>  
 </div>
 
