@@ -63,6 +63,10 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 ## Test the smart contract with the provided command. All testing should be passed
 
 ```
+ create a keypair with metamask and fund it.
+ paste private key into a file:
+ $ geth account import new.key
+
  $ npm run test
 
  > inst@1.0.0 test /in-st/coin/Instant

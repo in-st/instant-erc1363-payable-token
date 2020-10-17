@@ -43,7 +43,7 @@ if (process.env.COIN_TYPE) {
 }
 
 module.exports = {
-  contracts_directory: "./contracts/"+process.env.COIN_TYPE,
+  //contracts_directory: "./contracts/"+process.env.COIN_TYPE,
   plugins: ['truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_APIKEY,
