@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>LIP_1 Guide</h1>
+  <h1>Instant Guide</h1>
   <br/>
 </div>
 
-Before start, make sure you are inside the LIP_1 directory on the terminal
+Before start, make sure you are inside the Instant directory on the terminal
 
 # 1. Dependency Setup
 
@@ -12,8 +12,8 @@ Check Common Guide's [Dependency Setup Section](../setup.md#1.-Dependency-Setup)
 ## Install the dependencies
 
 ```
-LIP_ID="LIP_1"
-cd $HOME/liquidity-program/
+LIP_ID="Instant"
+cd $HOME/coin/
 git checkout $LIP_ID
 cd $LIP_ID
 npm install
@@ -34,11 +34,11 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 ```
  $ npm run build
 
- > kex@1.0.0 prebuild /Kira/liquidity-program/LIP_1
+ > inst@1.0.0 prebuild /in-st/coin/Instant
  > rimraf ./build/contracts/*
 
 
- > kex@1.0.0 build /Kira/liquidity-program/LIP_1
+ > inst@1.0.0 build /in-st/coin/Instant
  > truffle compile
 
  Using env var PRIVATE_KEY conn...
@@ -55,7 +55,7 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
  > Compiling openzeppelin-solidity/contracts/token/ERC20/ERC20.sol
  > Compiling openzeppelin-solidity/contracts/token/ERC20/IERC20.sol
  > Compiling openzeppelin-solidity/contracts/utils/Address.sol
- > Artifacts written to /Users/mac/Documents/Work/Kira/liquidity-program/LIP_1/build/contracts
+ > Artifacts written to /Users/mac/Documents/Work/in-st/coin/Instant/build/contracts
  > Compiled successfully using:
     - solc: 0.6.2+commit.bacdbe57.Emscripten.clang
 ```
@@ -65,7 +65,7 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 ```
  $ npm run test
 
- > kex@1.0.0 test /Kira/liquidity-program/LIP_1
+ > inst@1.0.0 test /in-st/coin/Instant
  > truffle test
 
  Using env var PRIVATE_KEY conn...
@@ -213,7 +213,7 @@ In order to verify your smart contract on etherscan.io execute the verification 
 
 ```
 $ npm run verify:kovan -- InstToken
-> kex@1.0.0 verify:kovan /home/mac/Desktop/liquidity-program/LIP_1
+> inst@1.0.0 verify:kovan /home/mac/Desktop/coin/Instant
 > truffle run verify InstToken --network kovan
 
 Using env var PRIVATE_KEY prai...
@@ -230,9 +230,9 @@ Successfully verified 1 contract(s).
 
 # 6. Instructions for interacting with the contract
 
-## Check if all tokens (300,000,000 KEX) is in the deployed account
+## Check if all tokens (300,000,000 inst) is in the deployed account
 
-Add KEX token as a custom token in your MetaMask wallet
+Add inst token as a custom token in your MetaMask wallet
 
 1.  Click `Add Token` Button on your MetaMask
 2.  On the `Add Token` page, click on `Add custom token` to expand the search window.
@@ -284,7 +284,7 @@ ABI we can now input into any wallet like MEW to interact with the contract
 
 1. Add Liquidity to Uniswap (https://app.uniswap.org/#/pool)
    ![Uniswap](doc/uniswap_initial.png)
-2. Select token pairs (ETH & KEX). Select KEX token by searching with KEX contract address
+2. Select token pairs (ETH & inst). Select inst token by searching with inst contract address
    ![Uniswap_Select_Token](doc/uniswap_select_token.png)
 3. Our pool
 

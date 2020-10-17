@@ -69,14 +69,14 @@ Let's setup MetaMask account and we can use Seed Phrase of the MetaMask wallet w
 - Click three dots in the top right of the main menu and enter Account details view
 - Click Export Private Key
 
-Each deployment environment has a different set of mandatory environment variables. Add the secrets required for the deployment environment to `.env` file of each working directory (e.g LIP_1, LIP_2, etc)
+Each deployment environment has a different set of mandatory environment variables. Add the secrets required for the deployment environment to `.env` file of each working directory (e.g Instant, Instant_2, etc)
 
 Make sure to provide the 64 character long hexa-decimal `PRIVATE_KEY`. The associated address will inherit the tokens created by the contract deployment.
 
-For example, To setup LIP_1's PRIVATE_KEY
+For example, To setup Instant's PRIVATE_KEY
 
 ```
-LIP_ID="LIP_1"
+LIP_ID="Instant"
 echo "PRIVATE_KEY=0xXXX...XXX" > $HOME/liquidity-program/$LIP_ID/.env
 ```
 
