@@ -66,7 +66,9 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
  create a keypair with metamask and fund it.
  paste private key into a file:
  $ geth account import new.key
- $ geth --rpc --rpcapi db,eth,net,web3,personal --unlock="0x8Ba35D564b35345Bca5471F63Aa1F98A544B70Aa" --testnet --allow-insecure-unlock
+^ it will ask for a password, it can be blank
+ $ geth --rpc --rpcapi db,eth,net,web3,personal --unlock="0x8ba35d564b35345bca5471f63aa1f98a544b70aa" --testnet --allow-insecure-unlock --keystore ~/.ethereum/keystore/
+^ will ask for the same password to unlock the keystore.
  $ npm run test
 
  > inst@1.0.0 test /in-st/coin/Instant
