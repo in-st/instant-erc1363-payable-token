@@ -19,7 +19,7 @@ abstract contract IERC223Recipient {
 
 /**
  * @title InstToken
- * @dev Simple ERC20 Token with freezing and whitelist feature.
+ * @dev Simple ERC20 Token with freezing and allowlist feature.
  */
 
 contract InstToken is ERC20, Ownable {
@@ -39,7 +39,7 @@ contract InstToken is ERC20, Ownable {
 
     mapping (address => uint256) private _balances;
 
-    struct WhitelistInfo {
+    struct allowlistInfo {
         // if account has allow deposit permission then it should be possible to deposit tokens to that account
         // as long as accounts depositing have allow_transfer permission
         bool allow_deposit;
@@ -53,22 +53,22 @@ contract InstToken is ERC20, Ownable {
         bool allow_unconditional_transfer;
     }
 
-    // represents if the address is blacklisted with the contract. Blacklist takes priority before all other permissions like whitelist
-    mapping(address => bool) private _blacklist;
+    // represents if the address is denylisted with the contract. denylist takes priority before all other permissions like allowlist
+    mapping(address => bool) private _denylist;
 
-    // represents if the address is whitelisted or not
-    mapping(address => WhitelistInfo) private _whitelist;
+    // represents if the address is allowed or not
+    mapping(address => allowlistInfo) private _allowlist;
 
     // Events
-    event WhitelistConfigured(
+    event allowlistConfigured(
         address[] addrs,
         bool allow_deposit,
         bool allow_transfer,
         bool allow_unconditional_deposit,
         bool allow_unconditional_transfer
     );
-    event AddedToBlacklist(address[] addrs);
-    event RemovedFromBlacklist(address[] addrs);
+    event AddedTodenylist(address[] addrs);
+    event RemovedFromdenylist(address[] addrs);
 
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
@@ -79,11 +79,11 @@ contract InstToken is ERC20, Ownable {
         emit Transfer(address(0x0), msg.sender, INITIAL_SUPPLY);
         freezed = true;
 
-        // owner's whitelist
-        _whitelist[msg.sender].allow_deposit = true;
-        _whitelist[msg.sender].allow_transfer = true;
-        _whitelist[msg.sender].allow_unconditional_deposit = true;
-        _whitelist[msg.sender].allow_unconditional_transfer = true;
+        // owner's allowlist
+        _allowlist[msg.sender].allow_deposit = true;
+        _allowlist[msg.sender].allow_transfer = true;
+        _allowlist[msg.sender].allow_unconditional_deposit = true;
+        _allowlist[msg.sender].allow_unconditional_transfer = true;
     }
 
     /**
@@ -100,14 +100,14 @@ contract InstToken is ERC20, Ownable {
     }
 
     /**
-     * @dev configure whitelist to an address
-     * @param addrs the addresses to be whitelisted
+     * @dev configure allowlist to an address
+     * @param addrs the addresses to be allowed
      * @param allow_deposit boolean variable to indicate if deposit is allowed
      * @param allow_transfer boolean variable to indicate if transfer is allowed
      * @param allow_unconditional_deposit boolean variable to indicate if unconditional deposit is allowed
      * @param allow_unconditional_transfer boolean variable to indicate if unconditional transfer is allowed
      */
-    function whitelist(
+    function allowlist(
         address[] calldata addrs,
         bool allow_deposit,
         bool allow_transfer,
@@ -118,45 +118,45 @@ contract InstToken is ERC20, Ownable {
             address addr = addrs[i];
             require(addr != address(0), 'in.st: address should not be zero');
 
-            _whitelist[addr].allow_deposit = allow_deposit;
-            _whitelist[addr].allow_transfer = allow_transfer;
-            _whitelist[addr].allow_unconditional_deposit = allow_unconditional_deposit;
-            _whitelist[addr].allow_unconditional_transfer = allow_unconditional_transfer;
+            _allowlist[addr].allow_deposit = allow_deposit;
+            _allowlist[addr].allow_transfer = allow_transfer;
+            _allowlist[addr].allow_unconditional_deposit = allow_unconditional_deposit;
+            _allowlist[addr].allow_unconditional_transfer = allow_unconditional_transfer;
         }
 
-        emit WhitelistConfigured(addrs, allow_deposit, allow_transfer, allow_unconditional_deposit, allow_unconditional_transfer);
+        emit allowlistConfigured(addrs, allow_deposit, allow_transfer, allow_unconditional_deposit, allow_unconditional_transfer);
 
         return true;
     }
 
     /**
-     * @dev add addresses to blacklist
+     * @dev add addresses to denylist
      */
-    function addToBlacklist(address[] calldata addrs) external onlyOwner returns (bool) {
+    function addTodenylist(address[] calldata addrs) external onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'in.st: address should not be zero');
 
-            _blacklist[addr] = true;
+            _denylist[addr] = true;
         }
 
-        emit AddedToBlacklist(addrs);
+        emit AddedTodenylist(addrs);
 
         return true;
     }
 
     /**
-     * @dev remove addresses from blacklist
+     * @dev remove addresses from denylist
      */
-    function removeFromBlacklist(address[] calldata addrs) external onlyOwner returns (bool) {
+    function removeFromdenylist(address[] calldata addrs) external onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'in.st: address should not be zero');
 
-            _blacklist[addr] = false;
+            _denylist[addr] = false;
         }
 
-        emit RemovedFromBlacklist(addrs);
+        emit RemovedFromdenylist(addrs);
 
         return true;
     }
@@ -177,9 +177,9 @@ contract InstToken is ERC20, Ownable {
     }
 
     /**
-     * @dev Returns if the address is whitelisted or not.
+     * @dev Returns if the address is on the allowlist or not.
      */
-    function whitelisted(address addr)
+    function allowlist(address addr)
         public
         view
         returns (
@@ -190,23 +190,23 @@ contract InstToken is ERC20, Ownable {
         )
     {
         return (
-            _whitelist[addr].allow_deposit,
-            _whitelist[addr].allow_transfer,
-            _whitelist[addr].allow_unconditional_deposit,
-            _whitelist[addr].allow_unconditional_transfer
+            _allowlist[addr].allow_deposit,
+            _allowlist[addr].allow_transfer,
+            _allowlist[addr].allow_unconditional_deposit,
+            _allowlist[addr].allow_unconditional_transfer
         );
     }
 
     /**
-     * @dev Returns if the address is on the blacklist or not.
+     * @dev Returns if the address is on the denylist or not.
      */
-    function blacklisted(address addr) public view returns (bool) {
-        return _blacklist[addr];
+    function denylisted(address addr) public view returns (bool) {
+        return _denylist[addr];
     }
 
     /**
      * @dev Hook before transfer
-     * check from and to are whitelisted when the token is freezed
+     * check from and to are allowed when the token is freezed
      */
     function _beforeTokenTransfer(
         address from,
@@ -214,38 +214,19 @@ contract InstToken is ERC20, Ownable {
         uint256 amount
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        require(!_blacklist[from], 'in.st: sender is blacklisted.');
-        require(!_blacklist[to], 'in.st: receiver is blacklisted.');
+        require(!_denylist[from], 'in.st: sender is denylisted.');
+        require(!_denylist[to], 'in.st: receiver is denylisted.');
         require(
             !freezed ||
-                _whitelist[from].allow_unconditional_transfer ||
-                _whitelist[to].allow_unconditional_deposit ||
-                (_whitelist[from].allow_transfer && _whitelist[to].allow_deposit),
-            'in.st: token transfer while freezed and not whitelisted.'
+                _allowlist[from].allow_unconditional_transfer ||
+                _allowlist[to].allow_unconditional_deposit ||
+                (_allowlist[from].allow_transfer && _allowlist[to].allow_deposit),
+            'in.st: token transfer while freezed and not allowed.'
         );
     }
 
     // ERC223 Support
     event Transfer(address indexed _from, address indexed _to, uint _value, bytes _data);
-
-    function dex() public view returns(address)
-    {
-        return owner();
-    }
-
-    function dexMint(uint _amount)
-        public
-        onlyOwner()
-    {
-        _mint(dex(), _amount);
-    }
-
-    function dexBurn(uint _amount)
-        public
-        onlyOwner()
-    {
-        _burn(dex(), _amount);
-    }
 
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
@@ -271,6 +252,7 @@ contract InstToken is ERC20, Ownable {
         return true;
     }
 
+
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      This function works the same with the previous one
@@ -280,7 +262,7 @@ contract InstToken is ERC20, Ownable {
      * @param _to    Receiver address.
      * @param _value Amount of tokens that will be transferred.
      */
-    function transfer(address _to, uint _value) public override returns (bool success) {
+    function transfer(address _to, uint _value) public override(ERC20) returns (bool success) {
         bytes memory empty = hex"00000000";
         _balances[msg.sender] = _balances[msg.sender].sub(_value);
         _balances[_to] = _balances[_to].add(_value);
@@ -301,14 +283,4 @@ contract InstToken is ERC20, Ownable {
         }
         return (length>0);
     }
-
-    // function that is called when transaction target is an address
-    function transferToAddress(address _to, uint _value, bytes memory _data) private returns (bool success) {
-        _burn(msg.sender, _value);
-        _mint(_to, _value);
-        emit Transfer(msg.sender, _to, _value, _data);
-        return true;
-    }
-
-
 }
