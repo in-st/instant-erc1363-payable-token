@@ -19,7 +19,7 @@ abstract contract IERC223Recipient {
 
 /**
  * @title InstToken
- * @dev Simple ERC20 Token with freezing and allowlist feature.
+ * @dev Simple ERC20 Token with freezing and blacklist
  */
 
 contract InstToken is ERC20, Ownable {
@@ -39,34 +39,9 @@ contract InstToken is ERC20, Ownable {
 
     mapping (address => uint256) private _balances;
 
-    struct allowlistInfo {
-        // if account has allow deposit permission then it should be possible to deposit tokens to that account
-        // as long as accounts depositing have allow_transfer permission
-        bool allow_deposit;
-        // if account has allow transfer permission then that account should be able to transfer tokens to other
-        // accounts with allow_deposit permission
-        bool allow_transfer;
-        // deposit to the account should be possible even if account depositing has no permission to transfer
-        bool allow_unconditional_deposit;
-        // transfer from the account should be possible to any account even if the destination account has no
-        // deposit permission
-        bool allow_unconditional_transfer;
-    }
-
-    // represents if the address is denylisted with the contract. denylist takes priority before all other permissions like allowlist
+    // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
 
-    // represents if the address is allowed or not
-    mapping(address => allowlistInfo) private _allowlist;
-
-    // Events
-    event allowlistConfigured(
-        address[] addrs,
-        bool allow_deposit,
-        bool allow_transfer,
-        bool allow_unconditional_deposit,
-        bool allow_unconditional_transfer
-    );
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
@@ -78,55 +53,19 @@ contract InstToken is ERC20, Ownable {
         _mint(msg.sender, INITIAL_SUPPLY);
         emit Transfer(address(0x0), msg.sender, INITIAL_SUPPLY);
         freezed = true;
-
-        // owner's allowlist
-        _allowlist[msg.sender].allow_deposit = true;
-        _allowlist[msg.sender].allow_transfer = true;
-        _allowlist[msg.sender].allow_unconditional_deposit = true;
-        _allowlist[msg.sender].allow_unconditional_transfer = true;
     }
 
     /**
      * @dev freeze and unfreeze functions
      */
     function freeze() external onlyOwner {
-        require(freezed == false, 'in.st: already freezed');
+        require(freezed == false, 'instant: already freezed');
         freezed = true;
     }
 
     function unfreeze() external onlyOwner {
-        require(freezed == true, 'in.st: already unfreezed');
+        require(freezed == true, 'instant: already unfreezed');
         freezed = false;
-    }
-
-    /**
-     * @dev configure allowlist to an address
-     * @param addrs the addresses to be allowed
-     * @param allow_deposit boolean variable to indicate if deposit is allowed
-     * @param allow_transfer boolean variable to indicate if transfer is allowed
-     * @param allow_unconditional_deposit boolean variable to indicate if unconditional deposit is allowed
-     * @param allow_unconditional_transfer boolean variable to indicate if unconditional transfer is allowed
-     */
-    function allowlist(
-        address[] calldata addrs,
-        bool allow_deposit,
-        bool allow_transfer,
-        bool allow_unconditional_deposit,
-        bool allow_unconditional_transfer
-    ) external onlyOwner returns (bool) {
-        for (uint256 i = 0; i < addrs.length; i++) {
-            address addr = addrs[i];
-            require(addr != address(0), 'in.st: address should not be zero');
-
-            _allowlist[addr].allow_deposit = allow_deposit;
-            _allowlist[addr].allow_transfer = allow_transfer;
-            _allowlist[addr].allow_unconditional_deposit = allow_unconditional_deposit;
-            _allowlist[addr].allow_unconditional_transfer = allow_unconditional_transfer;
-        }
-
-        emit allowlistConfigured(addrs, allow_deposit, allow_transfer, allow_unconditional_deposit, allow_unconditional_transfer);
-
-        return true;
     }
 
     /**
@@ -135,7 +74,7 @@ contract InstToken is ERC20, Ownable {
     function addTodenylist(address[] calldata addrs) external onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
-            require(addr != address(0), 'in.st: address should not be zero');
+            require(addr != address(0), 'instant: address should not be zero');
 
             _denylist[addr] = true;
         }
@@ -151,7 +90,7 @@ contract InstToken is ERC20, Ownable {
     function removeFromdenylist(address[] calldata addrs) external onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
-            require(addr != address(0), 'in.st: address should not be zero');
+            require(addr != address(0), 'instant: address should not be zero');
 
             _denylist[addr] = false;
         }
@@ -162,39 +101,18 @@ contract InstToken is ERC20, Ownable {
     }
 
     function multiTransfer(address[] calldata addrs, uint256 amount) external returns (bool) {
-        require(amount > 0, 'in.st: amount should not be zero');
-        require(balanceOf(msg.sender) >= amount.mul(addrs.length), 'in.st: amount should be less than the balance of the sender');
+        require(amount > 0, 'instant: amount should not be zero');
+        require(balanceOf(msg.sender) >= amount.mul(addrs.length), 'instant: amount should be less than the balance of the sender');
 
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
-            require(addr != msg.sender, 'in.st: address should not be sender');
-            require(addr != address(0), 'in.st: address should not be zero');
+            require(addr != msg.sender, 'instant: address should not be sender');
+            require(addr != address(0), 'instant: address should not be zero');
 
             transfer(addr, amount);
         }
 
         return true;
-    }
-
-    /**
-     * @dev Returns if the address is on the allowlist or not.
-     */
-    function allowlist(address addr)
-        public
-        view
-        returns (
-            bool,
-            bool,
-            bool,
-            bool
-        )
-    {
-        return (
-            _allowlist[addr].allow_deposit,
-            _allowlist[addr].allow_transfer,
-            _allowlist[addr].allow_unconditional_deposit,
-            _allowlist[addr].allow_unconditional_transfer
-        );
     }
 
     /**
@@ -216,15 +134,9 @@ contract InstToken is ERC20, Ownable {
         require(to != address(0));
         require(amount <= _balances[from]);
         super._beforeTokenTransfer(from, to, amount);
-        require(!_denylist[from], 'in.st: sender is denylisted.');
-        require(!_denylist[to], 'in.st: receiver is denylisted.');
-        require(
-            !freezed ||
-                _allowlist[from].allow_unconditional_transfer ||
-                _allowlist[to].allow_unconditional_deposit ||
-                (_allowlist[from].allow_transfer && _allowlist[to].allow_deposit),
-            'in.st: token transfer while freezed and not allowed.'
-        );
+        require(!_denylist[from], 'instant: sender is denylisted.');
+        require(!_denylist[to], 'instant: receiver is denylisted.');
+        require(!freezed, 'instant: token transfer while freezed and not allowed.');
     }
 
     // ERC223 Support
