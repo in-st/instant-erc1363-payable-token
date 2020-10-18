@@ -1,4 +1,6 @@
-const Token = artifacts.require('InstToken')
+//const Token = artifacts.require('../../inst.sol')
+var Adoption = artifacts.require("inUSD");
+
 
 var chai = require('chai')
 const BN = web3.utils.BN
@@ -11,15 +13,17 @@ chai.use(chaiAsPromised)
 
 const expect = chai.expect
 
-contract('InstToken Test', async function (accounts) {
+contract('inst - test', async function (accounts) {
   const [deployerAccount, account1, account2] = accounts
 
   let instance
 /*
   before(async function () {
     instance = await Token.deployed()
-  })
-  */
+  })*/
+  module.exports = function(deployer) {
+      deployer.deploy(Adoption);
+  };
 /*
   async function makeFreeze() {
     const freezed = await instance.freezed()

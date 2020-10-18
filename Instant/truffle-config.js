@@ -44,7 +44,7 @@ if (process.env.COIN_TYPE) {
 
 module.exports = {
   contracts_directory: process.env.COIN_TYPE,
-  migrations_directory: "../migrations",
+  //migrations_directory: "./migrations",
   plugins: ['truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_APIKEY,
@@ -67,7 +67,7 @@ module.exports = {
     development: {
       host: 'localhost',
       port: 8545,
-      //gas: 6700000,
+      gas: 6700000,
       from: process.env.PUBLIC_KEY,
       network_id: process.env.PRIVATE_NETWORK_ID,
     },
