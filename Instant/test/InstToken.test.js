@@ -1,4 +1,5 @@
 //const Token = artifacts.require('../../inst.sol')
+//var Adoption = artifacts.require(process.env.COIN_TYPE);
 var Adoption = artifacts.require("inUSD");
 
 
