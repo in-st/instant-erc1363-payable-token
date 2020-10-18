@@ -2,6 +2,8 @@ const Token = artifacts.require('inUSD')
 //var Adoption = artifacts.require(process.env.COIN_TYPE);
 //var Adoption = artifacts.require("../inUSD/inUSD");
 
+//console.dir(Token)
+//^ Useful AF for checking out that contract created by `artifacts.require('inUSD')``
 
 var chai = require('chai')
 const BN = web3.utils.BN
@@ -17,10 +19,10 @@ const expect = chai.expect
 contract('inst - test', async function (accounts) {
   const [deployerAccount, account1, account2] = accounts
 
-  let instance
+  let instance = await Token.deployed();
 
   before(async function () {
-    instance = await Token.deployed()
+    console.log(instance);
   })
 
 /*
