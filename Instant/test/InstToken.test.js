@@ -1,6 +1,6 @@
-//const Token = artifacts.require('../../inst.sol')
+const Token = artifacts.require('inUSD')
 //var Adoption = artifacts.require(process.env.COIN_TYPE);
-var Adoption = artifacts.require("inUSD");
+//var Adoption = artifacts.require("../inUSD/inUSD");
 
 
 var chai = require('chai')
@@ -18,13 +18,11 @@ contract('inst - test', async function (accounts) {
   const [deployerAccount, account1, account2] = accounts
 
   let instance
-/*
+
   before(async function () {
     instance = await Token.deployed()
-  })*/
-  module.exports = function(deployer) {
-      deployer.deploy(Adoption);
-  };
+  })
+
 /*
   async function makeFreeze() {
     const freezed = await instance.freezed()
@@ -63,10 +61,10 @@ contract('inst - test', async function (accounts) {
       - [x] should add to denylist
       - [x] should remove from denylist
     */
-    beforeEach(async function () {
+/*    beforeEach(async function () {
       await clearWhitelistdenylist()
     })
-
+*/
     it('should NOT be able to add 0x0 to the denylist', async function () {
       await expect(instance.addTodenylist([account1, 0])).to.eventually.be.rejected
     })
@@ -123,101 +121,4 @@ contract('inst - test', async function (accounts) {
     })
   })
 
-  describe('transfer when freezed', function () {
-    /*
-      - Before all: make the token freezed
-      - [x] should NOT be able to transfer (from: denylisted) even if its allow_transfer is true
-      - [x] should NOT be able to transfer (to: denylisted) even if its allow_deposit is true
-      - [x] should NOT be able to transfer (from: allow_transfer [no], to: allow_deposit [yes])
-      - [x] should NOT be able to transfer (from: allow_transfer [yes], to: allow_deposit [no])
-      - [x] should transfer (from: allow_transfer [yes], to: allow_deposit [yes])
-      - [x] should transfer (from: allow_unconditional_transfer [yes], to: allow_deposit [no])
-      - [x] should transfer (from: allow_transfer [no], to: allow_unconditional_deposit [yes])
-    */
-    before(async function () {
-      await makeFreeze()
-      await instance.transfer(account1, 1000)
-      await instance.transfer(account2, 1000)
-    })
-
-    beforeEach(async function () {
-      await clearWhitelistdenylist()
-    })
-
-    it('should NOT be able to transfer (from: denylisted) even if its allow_transfer is true', async function () {
-      // account1 -> account2
-      await expect(instance.addTodenylist([account1])).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account1], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: sender is denylisted')
-    })
-    it('should NOT be able to transfer (to: denylisted) even if its allow_deposit is true', async function () {
-      // account1 -> account2
-      await expect(instance.addTodenylist([account2])).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account1], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: receiver is denylisted')
-    })
-    it('should NOT be able to transfer (from: allow_transfer [no], to: allow_deposit [yes])', async function () {
-      // account1 -> account2
-      await expect(instance.whitelist([account1], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: token transfer while freezed and not whitelisted.')
-    })
-    it('should NOT be able to transfer (from: allow_transfer [yes], to: allow_deposit [no])', async function () {
-      // account1 -> account2
-      await expect(instance.whitelist([account1], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: token transfer while freezed and not whitelisted.')
-    })
-    it('should transfer (from: allow_transfer [yes], to: allow_deposit [yes])', async function () {
-      // account1 -> account2
-      await expect(instance.whitelist([account1], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], true, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.fulfilled
-    })
-    it('should transfer (from: allow_unconditional_transfer [yes], to: allow_deposit [no])', async function () {
-      // account1 -> account2
-      await expect(instance.whitelist([account1], false, false, false, true)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], false, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.fulfilled
-    })
-    it('should transfer (from: allow_transfer [no], to: allow_unconditional_deposit [yes])', async function () {
-      // account1 -> account2
-      await expect(instance.whitelist([account1], false, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.whitelist([account2], false, false, true, false)).to.eventually.be.fulfilled
-
-      const sendTokens = 100
-      const oldFromBalance = await instance.balanceOf(account1)
-      const oldToBalance = await instance.balanceOf(account2)
-      await expect(instance.transfer(account2, sendTokens, { from: account1 })).to.eventually.be.fulfilled
-      await expect(instance.balanceOf(account1)).to.eventually.be.a.bignumber.equal(oldFromBalance.sub(new BN(sendTokens)))
-      await expect(instance.balanceOf(account2)).to.eventually.be.a.bignumber.equal(oldToBalance.add(new BN(sendTokens)))
-    })
-  })
-
-  describe('multi transfer', function () {
-    /*
-      - Before all: make the token unfreezed
-      - [x] should be able to transfer to multiple accounts
-    */
-
-    before(async function () {
-      await makeUnfreeze()
-    })
-
-    it('should be able to transfer to multiple accounts', async function () {
-      // deployer -> account1, account2
-
-      const sendTokens = 100
-      const oldFromBalance = await instance.balanceOf(deployerAccount)
-      const oldToBalance1 = await instance.balanceOf(account1)
-      const oldToBalance2 = await instance.balanceOf(account2)
-      await expect(instance.multiTransfer([account1, account2], sendTokens)).to.eventually.be.fulfilled
-
-      await expect(instance.balanceOf(deployerAccount)).to.eventually.be.a.bignumber.equal(oldFromBalance.sub(new BN(sendTokens * 2)))
-      await expect(instance.balanceOf(account1)).to.eventually.be.a.bignumber.equal(oldToBalance1.add(new BN(sendTokens)))
-      await expect(instance.balanceOf(account2)).to.eventually.be.a.bignumber.equal(oldToBalance2.add(new BN(sendTokens)))
-    })
-  })
 })
