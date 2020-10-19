@@ -184,13 +184,13 @@ contract('inst Test', async function (accounts) {
 
       // make account1 as blacklisted
       await expect(instance.addToBlacklist([account1])).to.eventually.be.fulfilled
-      await expect(instance.transfer(deployerAccount, 100, { from: account1 })).to.eventually.be.rejectedWith('KEX: sender is blacklisted')
+      await expect(instance.transfer(deployerAccount, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: sender is blacklisted')
     })
 
     it('should NOT be able to transfer (to: blacklisted)', async function () {
       // make account1 as blacklisted
       await expect(instance.addToBlacklist([account1])).to.eventually.be.fulfilled
-      await expect(instance.transfer(account1, 100)).to.eventually.be.rejectedWith('KEX: receiver is blacklisted')
+      await expect(instance.transfer(account1, 100)).to.eventually.be.rejectedWith('inst: receiver is blacklisted')
     })
 
     it('should transfer (from: blacklisted [no], to: blacklisted [no])', async function () {
@@ -225,26 +225,26 @@ contract('inst Test', async function (accounts) {
       await expect(instance.addToBlacklist([account1])).to.eventually.be.fulfilled
       await expect(instance.whitelist([account1], false, true, false, false)).to.eventually.be.fulfilled
       await expect(instance.whitelist([account2], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('KEX: sender is blacklisted')
+      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: sender is blacklisted')
     })
     it('should NOT be able to transfer (to: blacklisted) even if its allow_deposit is true', async function () {
       // account1 -> account2
       await expect(instance.addToBlacklist([account2])).to.eventually.be.fulfilled
       await expect(instance.whitelist([account2], false, true, false, false)).to.eventually.be.fulfilled
       await expect(instance.whitelist([account1], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('KEX: receiver is blacklisted')
+      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: receiver is blacklisted')
     })
     it('should NOT be able to transfer (from: allow_transfer [no], to: allow_deposit [yes])', async function () {
       // account1 -> account2
       await expect(instance.whitelist([account1], true, false, false, false)).to.eventually.be.fulfilled
       await expect(instance.whitelist([account2], true, false, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('KEX: token transfer while freezed and not whitelisted.')
+      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: token transfer while freezed and not whitelisted.')
     })
     it('should NOT be able to transfer (from: allow_transfer [yes], to: allow_deposit [no])', async function () {
       // account1 -> account2
       await expect(instance.whitelist([account1], false, true, false, false)).to.eventually.be.fulfilled
       await expect(instance.whitelist([account2], false, true, false, false)).to.eventually.be.fulfilled
-      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('KEX: token transfer while freezed and not whitelisted.')
+      await expect(instance.transfer(account2, 100, { from: account1 })).to.eventually.be.rejectedWith('inst: token transfer while freezed and not whitelisted.')
     })
     it('should transfer (from: allow_transfer [yes], to: allow_deposit [yes])', async function () {
       // account1 -> account2
