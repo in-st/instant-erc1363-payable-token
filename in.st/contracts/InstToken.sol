@@ -67,32 +67,6 @@ contract inst is ERC20, Ownable {
      *      but does not implement the `tokenFallback` function
      *      or the fallback function to receive funds.
      *
-     * @param recipient    recipient address.
-     * @param amount Amount of tokens that will be transferred.
-     * @param memo  Transaction metadata.
-     */
-    /*function transfer(address recipient, uint amount, bytes memory memo) public returns (bool success){
-        // Make sure this transfer is allowed.
-        require(recipient != address(0) && recipient != address(this));
-        require(!_denylist[msg.sender], 'instant: sender blocked');
-        require(!_denylist[recipient], 'instant: recipient blocked');
-        // Standard function transfer similar to ERC20 transfer with no memo.
-        // Added due to backwards compatibility reasons .
-        _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        _balances[recipient] = _balances[recipient].add(amount);
-
-        // Complete the transaction.
-        emit Transfer(msg.sender, recipient, amount, memo);
-        return true;
-    }*/
-
-    /**
-     * @dev Transfer the specified amount of tokens to the specified address.
-     *      Invokes the `tokenFallback` function if the recipient is a contract.
-     *      The token transfer fails if the recipient is a contract
-     *      but does not implement the `tokenFallback` function
-     *      or the fallback function to receive funds.
-     * 
      * @param to   address where they will be transferred.
      * @param amount  Transaction metadata.
      */
@@ -106,12 +80,6 @@ contract inst is ERC20, Ownable {
       }
     }
 
-/*
-    function transferAndCall(address recipient, uint amount, bytes memory memo) public returns (bool success)
-    {
-      return transfer(recipient, amount, memo);
-    }*/
-
     //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
     function isContract(address _addr) private view returns (bool is_contract) {
         uint length;
@@ -121,6 +89,7 @@ contract inst is ERC20, Ownable {
         }
         return (length>0);
     }
+
     //Events
     event TotalSupply(uint256 totalSupply);
     event BalanceOf(address addr, uint256 balance);
