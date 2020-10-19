@@ -90,6 +90,11 @@ contract inst is ERC20, Ownable {
         return (length>0);
     }
 
+    function burn(uint256 _amount) public {
+      // tokens cannot be destroyed, they are returned.
+      transfer(owner(), _amount);
+    }
+
     //Events
     event TotalSupply(uint256 totalSupply);
     event BalanceOf(address addr, uint256 balance);
