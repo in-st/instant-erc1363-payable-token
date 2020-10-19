@@ -10,13 +10,25 @@ import 'contracts/IERC223Recipient.sol';
  * @dev Simple ERC20 Token with freezing and blacklist
  */
 
-abstract contract InstToken is ERC20, Ownable {
-    uint32 private _totalSupply;
+contract inst is ERC20, Ownable {
+    string public constant NAME = 'Instant';
+    string public constant SYMBOL = 'in.st';
+    uint8 public constant DECIMALS = 6;
+
+    // A 3rd of 1 billion tokens.
+    uint32 private constant _totalSupply = 333333333;
+
     mapping (address => uint256) private _balances;
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
+
+    constructor() public Ownable() ERC20(NAME, SYMBOL) {
+        _setupDecimals(DECIMALS);
+        _mint(msg.sender, _totalSupply);
+        emit Transfer(address(0x0), msg.sender, _totalSupply);
+    }
 
     /**
      * @dev add addresses to denylist

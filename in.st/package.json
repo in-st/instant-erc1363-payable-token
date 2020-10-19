@@ -1,5 +1,5 @@
 {
-  "name": "inst",
+  "name": "kex",
   "version": "1.0.0",
   "description": "",
   "main": "truffle-config.js",
@@ -17,9 +17,9 @@
     "deploy:development": "truffle migrate --network development",
     "prebuild": "rimraf ./build/contracts/*",
     "postinstall": "cpr .env.example .env",
-    "verify:ropsten": "truffle run verify InstToken --network ropsten",
-    "verify:kovan": "truffle run verify InstToken --network kovan",
-    "verify:mainnet": "truffle run verify InstToken --network mainnet"
+    "verify:ropsten": "truffle run verify inst --network ropsten",
+    "verify:kovan": "truffle run verify inst --network kovan",
+    "verify:mainnet": "truffle run verify inst --network mainnet"
   },
   "keywords": [],
   "private": true,

@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>Instant Guide</h1>
+  <h1>LIP_1 Guide</h1>
   <br/>
 </div>
 
-Before start, make sure you are inside the Instant directory on the terminal
+Before start, make sure you are inside the LIP_1 directory on the terminal
 
 # 1. Dependency Setup
 
@@ -12,8 +12,8 @@ Check Common Guide's [Dependency Setup Section](../setup.md#1.-Dependency-Setup)
 ## Install the dependencies
 
 ```
-LIP_ID="Instant"
-cd $HOME/coin/
+LIP_ID="LIP_1"
+cd $HOME/liquidity-program/
 git checkout $LIP_ID
 cd $LIP_ID
 npm install
@@ -34,11 +34,11 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 ```
  $ npm run build
 
- > inst@1.0.0 prebuild /in-st/coin/Instant
+ > kex@1.0.0 prebuild /Kira/liquidity-program/LIP_1
  > rimraf ./build/contracts/*
 
 
- > inst@1.0.0 build /in-st/coin/Instant
+ > kex@1.0.0 build /Kira/liquidity-program/LIP_1
  > truffle compile
 
  Using env var PRIVATE_KEY conn...
@@ -47,7 +47,7 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 
  Compiling your contracts...
  ===========================
- > Compiling ./contracts/InstToken.sol
+ > Compiling ./contracts/inst.sol
  > Compiling ./contracts/Migrations.sol
  > Compiling openzeppelin-solidity/contracts/GSN/Context.sol
  > Compiling openzeppelin-solidity/contracts/access/Ownable.sol
@@ -55,7 +55,7 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
  > Compiling openzeppelin-solidity/contracts/token/ERC20/ERC20.sol
  > Compiling openzeppelin-solidity/contracts/token/ERC20/IERC20.sol
  > Compiling openzeppelin-solidity/contracts/utils/Address.sol
- > Artifacts written to /Users/mac/Documents/Work/in-st/coin/Instant/build/contracts
+ > Artifacts written to /Users/mac/Documents/Work/Kira/liquidity-program/LIP_1/build/contracts
  > Compiled successfully using:
     - solc: 0.6.2+commit.bacdbe57.Emscripten.clang
 ```
@@ -63,15 +63,9 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
 ## Test the smart contract with the provided command. All testing should be passed
 
 ```
- create a keypair with metamask and fund it.
- paste private key into a file:
- $ geth account import new.key
-^ it will ask for a password, it can be blank
- $ geth --rpc --rpcapi db,eth,net,web3,personal --unlock="0x8ba35d564b35345bca5471f63aa1f98a544b70aa" --testnet --allow-insecure-unlock --keystore ~/.ethereum/keystore/
-^ will ask for the same password to unlock the keystore.
  $ npm run test
 
- > inst@1.0.0 test /in-st/coin/Instant
+ > kex@1.0.0 test /Kira/liquidity-program/LIP_1
  > truffle test
 
  Using env var PRIVATE_KEY conn...
@@ -83,16 +77,47 @@ Check Common Guide's [Testnet used and faucet references Section](../README.md#3
  ===========================
  > Everything is up to date, there is nothing to compile.
 
- Contract: InstToken Test
+ Contract: inst Test
     totalSupply
       ✓ all tokens should be in the deployer account
+    freeze
+      ✓ should be freezed at first and the transfer should be rejected (97ms)
+      ✓ should NOT be able to freeze when it was already freezed
+      ✓ should reject freeze call from non owner
+      ✓ should make the token as freeze when it was unfreezed (232ms)
+    unfreeze
+      ✓ should NOT be able to unfreeze when it was already unfreezed (67ms)
+      ✓ should reject unfreeze call from non owner
+      ✓ should make the token as unfreeze when it was freezed (298ms)
+      ✓ should be able to transfer freely once unfreezed (140ms)
+    whitelist
+      ✓ onwer should have full whitelist
+      ✓ should NOT be able to configure whitelist of 0 address
+      ✓ should NOT be able to configure whitelist without owner permission (61ms)
+      ✓ should whitelist any options of multiple addresses (114ms)
     blacklist
       ✓ should NOT be able to add 0x0 to the blacklist
       ✓ should NOT be able to remove 0x0 from the blacklist
       ✓ should NOT be able to add/remove blacklist without owner permission (99ms)
       ✓ should add to blacklist (68ms)
       ✓ should remove from blacklist (61ms)
+    transfer when unfreezed
+      ✓ should NOT be able to transfer (from: blacklisted) (136ms)
+      ✓ should NOT be able to transfer (to: blacklisted) (133ms)
+      ✓ should transfer (from: blacklisted [no], to: blacklisted [no]) (217ms)
+    transfer when freezed
+      ✓ should NOT be able to transfer (from: blacklisted) even if its allow_transfer is true (235ms)
+      ✓ should NOT be able to transfer (to: blacklisted) even if its allow_deposit is true (496ms)
+      ✓ should NOT be able to transfer (from: allow_transfer [no], to: allow_deposit [yes]) (183ms)
+      ✓ should NOT be able to transfer (from: allow_transfer [yes], to: allow_deposit [no]) (303ms)
+      ✓ should transfer (from: allow_transfer [yes], to: allow_deposit [yes]) (180ms)
+      ✓ should transfer (from: allow_unconditional_transfer [yes], to: allow_deposit [no]) (326ms)
+      ✓ should transfer (from: allow_transfer [no], to: allow_unconditional_deposit [yes]) (377ms)
+    multi transfer
+      ✓ should be able to transfer to multiple accounts (136ms)
 
+
+  29 passing (7s)
 ```
 
 # 5. Example Deployment and expected output
@@ -153,7 +178,7 @@ Starting migrations...
 2_deploy_contract.js
 ====================
 
-   Deploying 'InstToken'
+   Deploying 'inst'
    ---------------------
    > transaction hash:    0xfd0dbea4735b36e4a59c2f2c48febd2d905e9b5a8405c5c6a7a69a5c6d8f5d1b
    > Blocks: 1            Seconds: 6
@@ -187,14 +212,14 @@ In this example the smart contract was deployed to the address `0x982D5EC2f486b7
 In order to verify your smart contract on etherscan.io execute the verification script immediately after the contract is successfully deployed and pass the contract name as the argument.
 
 ```
-$ npm run verify:kovan -- InstToken
-> inst@1.0.0 verify:kovan /home/mac/Desktop/coin/Instant
-> truffle run verify InstToken --network kovan
+$ npm run verify:kovan -- inst
+> kex@1.0.0 verify:kovan /home/mac/Desktop/liquidity-program/LIP_1
+> truffle run verify inst --network kovan
 
 Using env var PRIVATE_KEY prai...
 Using env var INFURA_APIKEY 7591...
 Using env var process.env.ETHERSCAN_APIKEY SFP4...
-Verifying InstToken
+Verifying inst
 Pass - Verified: https://kovan.etherscan.io/address/0x982D5EC2f486b7cd7C31BD1d2299e94cAfE036cf#contracts
 Successfully verified 1 contract(s).
 ```
@@ -205,9 +230,9 @@ Successfully verified 1 contract(s).
 
 # 6. Instructions for interacting with the contract
 
-## Check if all tokens (300,000,000 inst) is in the deployed account
+## Check if all tokens (300,000,000 KEX) is in the deployed account
 
-Add inst token as a custom token in your MetaMask wallet
+Add KEX token as a custom token in your MetaMask wallet
 
 1.  Click `Add Token` Button on your MetaMask
 2.  On the `Add Token` page, click on `Add custom token` to expand the search window.
@@ -259,7 +284,7 @@ ABI we can now input into any wallet like MEW to interact with the contract
 
 1. Add Liquidity to Uniswap (https://app.uniswap.org/#/pool)
    ![Uniswap](doc/uniswap_initial.png)
-2. Select token pairs (ETH & inst). Select inst token by searching with inst contract address
+2. Select token pairs (ETH & KEX). Select KEX token by searching with KEX contract address
    ![Uniswap_Select_Token](doc/uniswap_select_token.png)
 3. Our pool
 
