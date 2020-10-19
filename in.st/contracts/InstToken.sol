@@ -10,13 +10,15 @@ import 'contracts/IERC223Recipient.sol';
  * @dev Simple ERC20 Token with freezing and blacklist
  */
 
-contract inst is ERC20, Ownable {
-    string private constant _name = 'Instant';
-    string private constant _symbol = 'in.st';
-    uint8 private constant _decimals = 6;
+contract inst is Ownable {
+    using SafeMath for uint256;
+
+    string public constant name = 'Instant';
+    string public constant symbol = 'in.st';
+    uint8 public constant decimals = 6;
 
     // A 3rd of 1 billion tokens.
-    uint256 private constant _totalSupply = 333333333333333;
+    uint256 public constant totalSupply = 333333333333333;
 
     mapping (address => uint256) private _balances;
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
@@ -24,12 +26,14 @@ contract inst is ERC20, Ownable {
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
-    constructor() public Ownable() ERC20(_name, _symbol) {
-        _setupDecimals(_decimals);
-        _mint(msg.sender, _totalSupply);
-        _balances[msg.sender] = _totalSupply;
+    constructor() public Ownable() onlyOwner {
+          _balances[msg.sender] = totalSupply;
     }
-
+/*
+    function decimals() public view returns (uint8){
+          return _decimals;
+    }
+*/
     /**
      * @dev add addresses to denylist
      */
@@ -92,12 +96,12 @@ contract inst is ERC20, Ownable {
         return true;
     }
 
-    // Override the erc20
-    function _transfer(address sender, address recipient, uint256 amount) internal override {
-        uint memory iamount = uint(amount);
+/*
+    function _transfer(address sender, address recipient, uint256 amount) internal {
+        uint  iamount = uint(amount);
         bytes memory empty = hex"";
         transfer(recipient, iamount, empty);
-    }
+    }*/
 
     function transferAndCall(address recipient, uint amount, bytes memory memo)
       public
@@ -115,7 +119,7 @@ contract inst is ERC20, Ownable {
      * @param recipient    recipient address.
      * @param amount Amount of tokens that will be transferred.
      */
-    function transfer(address recipient, uint amount) public override(ERC20) returns (bool success) {
+    function transfer(address recipient, uint amount) public returns (bool success) {
         bytes memory empty = hex"";
         return transfer(recipient, amount, empty);
     }
@@ -129,4 +133,12 @@ contract inst is ERC20, Ownable {
         }
         return (length>0);
     }
+
+  function get_address() public view onlyOwner returns (address) {
+      return address(this);
+  }
+  function balanceOf(address addr) public view onlyOwner returns(uint256) {
+      return _balances[addr];
+  }
+
 }
