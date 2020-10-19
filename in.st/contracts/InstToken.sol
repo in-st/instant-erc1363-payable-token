@@ -10,30 +10,25 @@ import 'contracts/IERC223Recipient.sol';
  * @dev Simple ERC20 Token with freezing and blacklist
  */
 
-contract inst is Ownable {
+contract inst is ERC20, Ownable {
     using SafeMath for uint256;
 
-    string public constant name = 'Instant';
-    string public constant symbol = 'in.st';
-    uint8 public constant decimals = 6;
-
+    string private override constant _name = 'Instant';
+    string public constant _symbol = 'in.st';
     // A 3rd of 1 billion tokens.
-    uint256 public constant totalSupply = 333333333333333;
+    uint256 public constant _totalSupply = 333333333333333;
 
-    mapping (address => uint256) private _balances;
+    //mapping (address => uint256) public _balances;
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
-    constructor() public Ownable() onlyOwner {
-          _balances[msg.sender] = totalSupply;
+    constructor() public Ownable() ERC20(_name, _symbol){
+        _setupDecimals(6);
+        _mint(owner(), _totalSupply);
     }
-/*
-    function decimals() public view returns (uint8){
-          return _decimals;
-    }
-*/
+
     /**
      * @dev add addresses to denylist
      */
@@ -65,8 +60,6 @@ contract inst is Ownable {
     }
 
     // ERC223 Support
-    event Transfer(address indexed _from, address indexed recipient, uint amount, bytes memo);
-
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      Invokes the `tokenFallback` function if the recipient is a contract.
@@ -78,7 +71,7 @@ contract inst is Ownable {
      * @param amount Amount of tokens that will be transferred.
      * @param memo  Transaction metadata.
      */
-    function transfer(address recipient, uint amount, bytes memory memo) public returns (bool success){
+    /*function transfer(address recipient, uint amount, bytes memory memo) public returns (bool success){
         // Make sure this transfer is allowed.
         require(recipient != address(0) && recipient != address(this));
         require(!_denylist[msg.sender], 'instant: sender blocked');
@@ -87,42 +80,37 @@ contract inst is Ownable {
         // Added due to backwards compatibility reasons .
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
         _balances[recipient] = _balances[recipient].add(amount);
-        if(Address.isContract(recipient)) {
-            IERC223Recipient receiver = IERC223Recipient(recipient);
-            receiver.tokenFallback(msg.sender, amount, memo);
-        }
+
         // Complete the transaction.
         emit Transfer(msg.sender, recipient, amount, memo);
         return true;
-    }
-
-/*
-    function _transfer(address sender, address recipient, uint256 amount) internal {
-        uint  iamount = uint(amount);
-        bytes memory empty = hex"";
-        transfer(recipient, iamount, empty);
     }*/
-
-    function transferAndCall(address recipient, uint amount, bytes memory memo)
-      public
-      returns (bool success)
-    {
-      return transfer(recipient, amount, memo);
-    }
 
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
-     *      This function works the same with the previous one
-     *      but doesn't contain `memo` param.
-     *      Added due to backwards compatibility reasons.
-     *
-     * @param recipient    recipient address.
-     * @param amount Amount of tokens that will be transferred.
+     *      Invokes the `tokenFallback` function if the recipient is a contract.
+     *      The token transfer fails if the recipient is a contract
+     *      but does not implement the `tokenFallback` function
+     *      or the fallback function to receive funds.
+     * 
+     * @param to   address where they will be transferred.
+     * @param amount  Transaction metadata.
      */
-    function transfer(address recipient, uint amount) public returns (bool success) {
-        bytes memory empty = hex"";
-        return transfer(recipient, amount, empty);
+    function _beforeTokenTransfer(address /*from*/, address to, uint256 amount) internal override {
+      // this message type is not needed for our token,
+      // always empty.
+      bytes memory empty = hex"";
+      if(Address.isContract(to)) {
+          IERC223Recipient receiver = IERC223Recipient(to);
+          receiver.tokenFallback(msg.sender, amount, empty);
+      }
     }
+
+/*
+    function transferAndCall(address recipient, uint amount, bytes memory memo) public returns (bool success)
+    {
+      return transfer(recipient, amount, memo);
+    }*/
 
     //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
     function isContract(address _addr) private view returns (bool is_contract) {
@@ -133,12 +121,11 @@ contract inst is Ownable {
         }
         return (length>0);
     }
-
-  function get_address() public view onlyOwner returns (address) {
-      return address(this);
-  }
-  function balanceOf(address addr) public view onlyOwner returns(uint256) {
-      return _balances[addr];
-  }
-
+    //Events
+    event TotalSupply(uint256 totalSupply);
+    event BalanceOf(address addr, uint256 balance);
+    event Burn(address indexed receiver, uint256 amount);
+    event Transfer(address indexed sender, address indexed receiver, uint256 amount, bytes data);
+    event GetOwner(address indexed owner);
+    event Mint(address indexed receiver, uint256 amount);
 }
