@@ -11,12 +11,12 @@ import 'contracts/IERC223Recipient.sol';
  */
 
 contract inst is ERC20, Ownable {
-    string public constant NAME = 'Instant';
-    string public constant SYMBOL = 'in.st';
-    uint8 public constant DECIMALS = 6;
+    string private constant _name = 'Instant';
+    string private constant _symbol = 'in.st';
+    uint8 private constant _decimals = 6;
 
     // A 3rd of 1 billion tokens.
-    uint32 private constant _totalSupply = 333333333;
+    uint256 private constant _totalSupply = 333333333333333;
 
     mapping (address => uint256) private _balances;
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
@@ -24,10 +24,10 @@ contract inst is ERC20, Ownable {
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
-    constructor() public Ownable() ERC20(NAME, SYMBOL) {
-        _setupDecimals(DECIMALS);
+    constructor() public Ownable() ERC20(_name, _symbol) {
+        _setupDecimals(_decimals);
         _mint(msg.sender, _totalSupply);
-        emit Transfer(address(0x0), msg.sender, _totalSupply);
+        _balances[msg.sender] = _totalSupply;
     }
 
     /**
@@ -61,7 +61,7 @@ contract inst is ERC20, Ownable {
     }
 
     // ERC223 Support
-    event Transfer(address indexed _from, address indexed _to, uint _value, bytes _data);
+    event Transfer(address indexed _from, address indexed recipient, uint amount, bytes memo);
 
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
@@ -70,47 +70,54 @@ contract inst is ERC20, Ownable {
      *      but does not implement the `tokenFallback` function
      *      or the fallback function to receive funds.
      *
-     * @param _to    Receiver address.
-     * @param _value Amount of tokens that will be transferred.
-     * @param _data  Transaction metadata.
+     * @param recipient    recipient address.
+     * @param amount Amount of tokens that will be transferred.
+     * @param memo  Transaction metadata.
      */
-    function transfer(address _to, uint _value, bytes memory _data) public returns (bool success){
+    function transfer(address recipient, uint amount, bytes memory memo) public returns (bool success){
         // Make sure this transfer is allowed.
-        require(_to != address(0) && _to != address(this));
+        require(recipient != address(0) && recipient != address(this));
         require(!_denylist[msg.sender], 'instant: sender blocked');
-        require(!_denylist[_to], 'instant: receiver blocked');
-        // Standard function transfer similar to ERC20 transfer with no _data.
+        require(!_denylist[recipient], 'instant: recipient blocked');
+        // Standard function transfer similar to ERC20 transfer with no memo.
         // Added due to backwards compatibility reasons .
-        _balances[msg.sender] = _balances[msg.sender].sub(_value);
-        _balances[_to] = _balances[_to].add(_value);
-        if(Address.isContract(_to)) {
-            IERC223Recipient receiver = IERC223Recipient(_to);
-            receiver.tokenFallback(msg.sender, _value, _data);
+        _balances[msg.sender] = _balances[msg.sender].sub(amount);
+        _balances[recipient] = _balances[recipient].add(amount);
+        if(Address.isContract(recipient)) {
+            IERC223Recipient receiver = IERC223Recipient(recipient);
+            receiver.tokenFallback(msg.sender, amount, memo);
         }
         // Complete the transaction.
-        emit Transfer(msg.sender, _to, _value, _data);
+        emit Transfer(msg.sender, recipient, amount, memo);
         return true;
     }
 
-    function transferAndCall(address _to, uint _value, bytes memory _data)
+    // Override the erc20
+    function _transfer(address sender, address recipient, uint256 amount) internal override {
+        uint memory iamount = uint(amount);
+        bytes memory empty = hex"";
+        transfer(recipient, iamount, empty);
+    }
+
+    function transferAndCall(address recipient, uint amount, bytes memory memo)
       public
       returns (bool success)
     {
-      return transfer(_to, _value, _data);
+      return transfer(recipient, amount, memo);
     }
 
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      This function works the same with the previous one
-     *      but doesn't contain `_data` param.
+     *      but doesn't contain `memo` param.
      *      Added due to backwards compatibility reasons.
      *
-     * @param _to    Receiver address.
-     * @param _value Amount of tokens that will be transferred.
+     * @param recipient    recipient address.
+     * @param amount Amount of tokens that will be transferred.
      */
-    function transfer(address _to, uint _value) public override(ERC20) returns (bool success) {
+    function transfer(address recipient, uint amount) public override(ERC20) returns (bool success) {
         bytes memory empty = hex"";
-        return transfer(_to, _value, empty);
+        return transfer(recipient, amount, empty);
     }
 
     //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
