@@ -2,9 +2,9 @@
 
 pragma solidity ^0.7.0;
 
-import "./IERC1363.sol";
-import "./IERC1363Receiver.sol";
-import "./IERC1363Spender.sol";
+import 'contracts/token/ERC1363/IERC1363.sol';
+import 'contracts/token/ERC1363/IERC1363Receiver.sol';
+import 'contracts/token/ERC1363/IERC1363Spender.sol';
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/introspection/ERC165Checker.sol";

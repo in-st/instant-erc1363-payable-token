@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: CC-BY-NC-3.0
 
-pragma solidity ^0.7.1;
+pragma solidity ^0.7.0;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/math/SafeMath.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
-import './token/ERC1363/ERC1363.sol';
+import 'contracts/token/ERC1363/ERC1363.sol';
 
-contract inst is ERC1363, Ownable {
+abstract contract inst is ERC1363, Ownable {
     using SafeMath for uint256;
 
     string private constant _name = 'Instant';
-    string public _symbol = 'in.st';
-    // A third of one billion tokens.
+    string public constant _symbol = 'in.st';
+    // A 3rd of 1 billion tokens.
     uint256 public constant _totalSupply = 333333333333333;
 
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
@@ -20,7 +19,7 @@ contract inst is ERC1363, Ownable {
     event AddedTodenylist(address[] addrs);
     event RemovedFromdenylist(address[] addrs);
 
-    constructor() Ownable() ERC1363(_name,_symbol) {
+    constructor() Ownable() ERC1363(_name, _symbol) {
         _setupDecimals(6);
         _mint(owner(), _totalSupply);
         emit Transfer(address(0x0), owner(), _totalSupply);
@@ -45,6 +44,7 @@ contract inst is ERC1363, Ownable {
         }
 
         emit AddedTodenylist(addrs);
+
         return true;
     }
 
