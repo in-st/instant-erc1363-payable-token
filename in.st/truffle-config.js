@@ -17,7 +17,26 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
+require('chai/register-should');
 require('dotenv').config()
+
+const solcStable = {
+  version: '0.7.1',
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  },
+};
+
+const solcNightly = {
+  version: 'nightly',
+  docker: true,
+};
+
+const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
+
 const HDWalletProvider = require('truffle-hdwallet-provider')
 const abbrv = (str) => `${str.substr(0, 4)}...`
 
@@ -113,15 +132,7 @@ module.exports = {
   // Set default mocha options here, use special reporters etc.
   mocha: {},
   compilers: {
-    solc: {
-      version: '0.6.2',
-      docker: false,
-      settings: {
-        optimizer: {
-          enabled: true,
-          runs: 200,
-        },
-      },
-    },
+    solc: useSolcNightly ? solcNightly : solcStable,
   },
+  plugins: ['solidity-coverage'],
 }
