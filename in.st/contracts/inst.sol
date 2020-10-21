@@ -16,8 +16,8 @@ contract inst is ERC1363, Ownable {
 
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
-    event AddedTodenylist(address[] addrs);
-    event RemovedFromdenylist(address[] addrs);
+    event AddedToDenylist(address[] addrs);
+    event RemovedFromDenylist(address[] addrs);
 
     constructor() Ownable() ERC1363(_name, _symbol) {
         _setupDecimals(6);
@@ -36,14 +36,14 @@ contract inst is ERC1363, Ownable {
     /**
      * @dev add addresses to denylist
      */
-    function addToDenylist(address[] calldata addrs) external onlyOwner returns (bool) {
+    function addToDenylist(address[] calldata addrs) public onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'instant: address should not be zero');
             _denylist[addr] = true;
         }
 
-        emit AddedTodenylist(addrs);
+        emit AddedToDenylist(addrs);
 
         return true;
     }
@@ -51,23 +51,23 @@ contract inst is ERC1363, Ownable {
     /**
      * @dev remove addresses from denylist
      */
-    function removeFromDenylist(address[] calldata addrs) external onlyOwner returns (bool) {
+    function removeFromDenylist(address[] calldata addrs) public onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
             require(addr != address(0), 'instant: address should not be zero');
             _denylist[addr] = false;
         }
 
-        emit RemovedFromdenylist(addrs);
+        emit RemovedFromDenylist(addrs);
 
         return true;
     }
+
     /**
      * @dev Tokens must not be allowed to be destoryed, if one isn't needed any longer then the owner will take it back.
      */
-    function burn(uint256 _amount) public {
+    function burn(uint256 _amount) public payable {
       // tokens cannot be destroyed, they are returned.
       transfer(owner(), _amount);
     }
-
 }
