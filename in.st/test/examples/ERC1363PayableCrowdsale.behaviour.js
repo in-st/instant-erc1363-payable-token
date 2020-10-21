@@ -1,6 +1,6 @@
 const { BN, constants, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-
+/*
 const Crowdsale = artifacts.require('ERC1363PayableCrowdsale');
 
 function shouldBehaveLikeERC1363PayableCrowdsale ([_, wallet, beneficiary, operator]) {
@@ -429,3 +429,4 @@ function shouldBehaveLikeERC1363PayableCrowdsale ([_, wallet, beneficiary, opera
 module.exports = {
   shouldBehaveLikeERC1363PayableCrowdsale,
 };
+*/
