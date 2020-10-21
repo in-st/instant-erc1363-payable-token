@@ -1,4 +1,4 @@
-const inst = artifacts.require("./inst.sol")
+const inst = artifacts.require("./token/inst.sol")
 
 module.exports = function (deployer) {
   /**
