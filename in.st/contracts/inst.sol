@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/math/SafeMath.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
 import 'contracts/token/ERC1363/ERC1363.sol';
 
-abstract contract inst is ERC1363, Ownable {
+contract inst is ERC1363, Ownable {
     using SafeMath for uint256;
 
     string private constant _name = 'Instant';
