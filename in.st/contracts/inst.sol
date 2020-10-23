@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC-BY-NC-3.0
 
-pragma solidity ^0.7.0;
+pragma solidity ^0.7.1;
 
 import '@openzeppelin/contracts/math/SafeMath.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -12,7 +12,7 @@ contract inst is ERC1363, Ownable {
     string private constant _name = 'Instant';
     string public constant _symbol = 'in.st';
     // A 3rd of 1 billion tokens.
-    uint256 public constant _totalSupply = 333333333333333;
+    uint256 public constant _totalSupply = 333333333333333333;
 
     // represents if the address is denylisted with the contract. denylist takes priority before all other permissions
     mapping(address => bool) private _denylist;
@@ -20,9 +20,8 @@ contract inst is ERC1363, Ownable {
     event RemovedFromDenylist(address[] addrs);
 
     constructor() Ownable() ERC1363(_name, _symbol) {
-        _setupDecimals(6);
+        _setupDecimals(9);
         _mint(owner(), _totalSupply);
-        emit Transfer(address(0x0), owner(), _totalSupply);
     }
 
     /**
@@ -60,8 +59,7 @@ contract inst is ERC1363, Ownable {
     }
 
     /**
-     * @dev Some tokens can be created based on demand.
-     * However, in.st is fininate accross all networks.
+     * @dev Some tokens can be created based on demand. However, in.st is fininate accross all networks.
      */
     function mint(uint256 amount) public onlyOwner {
       require(keccak256(abi.encodePacked(_symbol))!=keccak256(abi.encodePacked('in.st')), 'Cannot mint in.st');
