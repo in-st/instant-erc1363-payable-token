@@ -63,17 +63,17 @@ contract inst is ERC1363, Ownable {
      * @dev Some tokens can be created based on demand.
      * However, in.st is fininate accross all networks.
      */
-    function mint(uint256 _amount) public onlyOwner {
+    function mint(uint256 amount) public onlyOwner {
       require(keccak256(abi.encodePacked(_symbol))!=keccak256(abi.encodePacked('in.st')), 'Cannot mint in.st');
-      // tokens cannot be destroyed, they are returned.
-      _mint(owner(), _amount);
+      // The owner recives the newly created coins, and the total is increased:
+      _mint(owner(), amount);
     }
 
     /**
      * @dev Tokens must not be allowed to be destoryed, if one isn't needed any longer then the owner will take it back.
      */
-    function burn(uint256 _amount) public payable {
+    function burn(uint256 amount) public payable {
       // tokens cannot be destroyed, they are returned.
-      transfer(owner(), _amount);
+      transfer(owner(), amount);
     }
 }
