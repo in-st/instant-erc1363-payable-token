@@ -37,7 +37,6 @@ const solcNightly = {
 
 const useSolcNightly = process.env.SOLC_NIGHTLY === 'true';
 
-const HDWalletProvider = require('truffle-hdwallet-provider')
 const abbrv = (str) => `${str.substr(0, 4)}...`
 
 if (!process.env.PRIVATE_KEY) {
@@ -57,10 +56,11 @@ if (process.env.PRIVATE_NETWORK_ID) {
 if (process.env.ETHERSCAN_APIKEY) {
   console.log('Using env var process.env.ETHERSCAN_APIKEY', abbrv(process.env.ETHERSCAN_APIKEY))
 }
+//const HDWalletProvider = require('truffle-hdwallet-provider')
 
 module.exports = {
   //migrations_directory: "../migrations",
-  plugins: ['truffle-plugin-verify'],
+  plugins: ['solidity-coverage','truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_APIKEY,
   },
@@ -80,8 +80,8 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     development: {
-      host: 'localhost',
-      port: 7545,
+      host: process.env.GETH_HOST ,
+      port: process.env.GETH_PORT,
       gas: 7500000,
       network_id: '*',
     },
@@ -97,7 +97,8 @@ module.exports = {
     // production: true    // Treats this network as if it was a public net. (default: false)
     // },
     private: {
-      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, process.env.PRIVATE_NETWORK_URL),
+      host: process.env.GETH_HOST,
+      port: process.env.GETH_PORT,
       gas: 0, // example settings for "ethereum-free" networks.
       gasPrice: 0,
       network_id: process.env.PRIVATE_NETWORK_ID,
@@ -105,16 +106,20 @@ module.exports = {
 
     // Useful for deploying to a public network.
     ropsten: {
-      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://ropsten.infura.io/v3/${process.env.INFURA_APIKEY}`),
+      host: process.env.GETH_HOST,
+      port: process.env.GETH_PORT,
+      //provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://ropsten.infura.io/v3/${process.env.INFURA_APIKEY}`),
       network_id: 3, // Ropsten's id
-      gas: 7500000,        // Ropsten has a lower block limit than mainnet
+      gas: 0,        // Ropsten has a lower block limit than mainnet
       // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
       // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
 
     kovan: {
-      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://kovan.infura.io/v3/${process.env.INFURA_APIKEY}`),
+      host: process.env.GETH_HOST,
+      port: process.env.GETH_PORT,
+      //provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://kovan.infura.io/v3/${process.env.INFURA_APIKEY}`),
       network_id: 42, // Kovan's id
       // gas: 5500000,
       // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
@@ -123,9 +128,11 @@ module.exports = {
     },
 
     mainnet: {
-      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://mainnet.infura.io/v3/${process.env.INFURA_APIKEY}`),
+      host: process.env.GETH_HOST,
+      port: process.env.GETH_PORT,
+      //provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, `https://mainnet.infura.io/v3/${process.env.INFURA_APIKEY}`),
       network_id: 1,
-      gas: 6500000, // Default gas to send per transaction
+      gas: 7500000, // Default gas to send per transaction
       gasPrice: 10000000000, // 10 gwei
       confirmations: 0,
     },
@@ -135,5 +142,4 @@ module.exports = {
   compilers: {
     solc: useSolcNightly ? solcNightly : solcStable,
   },
-  plugins: ['solidity-coverage'],
 }

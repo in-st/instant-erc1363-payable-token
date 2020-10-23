@@ -39,12 +39,10 @@ contract inst is ERC1363, Ownable {
     function addToDenylist(address[] calldata addrs) public onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
-            require(addr != address(0), 'instant: address should not be zero');
             _denylist[addr] = true;
         }
 
         emit AddedToDenylist(addrs);
-
         return true;
     }
 
@@ -54,13 +52,21 @@ contract inst is ERC1363, Ownable {
     function removeFromDenylist(address[] calldata addrs) public onlyOwner returns (bool) {
         for (uint256 i = 0; i < addrs.length; i++) {
             address addr = addrs[i];
-            require(addr != address(0), 'instant: address should not be zero');
-            _denylist[addr] = false;
+            delete _denylist[addr];
         }
 
         emit RemovedFromDenylist(addrs);
-
         return true;
+    }
+
+    /**
+     * @dev Some tokens can be created based on demand.
+     * However, in.st is fininate accross all networks.
+     */
+    function mint(uint256 _amount) public onlyOwner {
+      require(keccak256(abi.encodePacked(_symbol))!=keccak256(abi.encodePacked('in.st')), 'Cannot mint in.st');
+      // tokens cannot be destroyed, they are returned.
+      _mint(owner(), _amount);
     }
 
     /**
